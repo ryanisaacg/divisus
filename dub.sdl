@@ -1,0 +1,6 @@
+name "divisus"
+description "A game written in D"
+authors "Ryan Goldstein"
+copyright "Copyright © 2017, Ryan Goldstein"
+license "proprietary"
+dependency "derelict-sdl2"
