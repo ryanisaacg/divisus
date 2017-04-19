@@ -36,9 +36,19 @@ struct Tilemap(T)
 		buffer[index(x, y)].nullify();
 	}
 
+	public void clear(E)(E point)
+	{
+		clear(point.x, point.y);
+	}
+
 	public Nullable!T get(const int x, const int y) const
 	{
 		return buffer[index(x, y)];
+	}
+
+	public Nullable!T get(E)(E point) const 
+	{
+		return get(point.x, point.y);
 	}
 
 	public bool isFree(int x, int y, int w, int h) const
@@ -52,5 +62,10 @@ struct Tilemap(T)
 				if(!buffer[index(i, j)].isNull()) 
 					return false;
 		return true;
+	}
+
+	public bool isFree(E)(E area) const 
+	{
+		return isFree(area.x, area.y, area.width, area.height);
 	}
 }
