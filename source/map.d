@@ -1,3 +1,4 @@
+import std.math;
 import std.typecons;
 import geom;
 
@@ -82,8 +83,8 @@ struct Tilemap(T)
 			int y = velocity.y;
 			while((x != 0 || y != 0) && !isFree(area.x + x, area.y + y, area.width, area.height))
 			{
-				x /= 2;
-				y /= 2;
+				x -= sgn(x);
+				y -= sgn(y);
 			}
 			return Vector2(x, y);
 		}
