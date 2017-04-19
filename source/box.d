@@ -74,6 +74,12 @@ struct Box(T, int N)
                 return (min + max) / 2;
             }
 
+			static if (N >= 1) 
+			@nogc T x() pure const nothrow @property
+			{
+				return min.x;
+			}
+
             /// Returns: Width of the box, always applicable.
             static if (N >= 1)
             @nogc T width() pure const nothrow @property
@@ -81,12 +87,24 @@ struct Box(T, int N)
                 return max.x - min.x;
             }
 
+			static if (N >= 2)
+			@nogc T y() pure const nothrow @property
+			{
+				return min.y;
+			}
+
             /// Returns: Height of the box, if applicable.
             static if (N >= 2)
             @nogc T height() pure const nothrow @property
             {
                 return max.y - min.y;
             }
+
+			static if (N >= 3)
+			@nogc T z() pure const nothrow @property
+			{
+				return min.z;
+			}
 
             /// Returns: Depth of the box, if applicable.
             static if (N >= 3)
