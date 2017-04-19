@@ -1,3 +1,4 @@
+import std.parallelism;
 import std.stdio;
 import tilemap;
 import entity;
@@ -11,20 +12,16 @@ void main()
 	for(int i = 0; i < 480; i++)
 		map.put(1, Vector2(i, i));
 	Entity[] entities;
-	entities.length = 15;
+	entities.length = 480;
 	for(int i = 0; i < entities.length; i++)
 	{
-		entities[i] = Entity(Rect(450, i * 32, 32, 32), Vector2(-1, 0));
+		entities[i] = Entity(Rect(450, i, 32, 32), Vector2(-1, 0));
 	}
 	for(int i = 0; i < 1000; i++) 
 	{
-		foreach(index, ref ent; entities) 
+		foreach(index, ref ent; taskPool.parallel(entities))
 		{
 			map.slide(ent.bounds, ent.speed, ent.bounds, ent.speed);
 		}
-	}
-	foreach(i, ref ent; entities) 
-	{
-		writeln(ent);
 	}
 }
