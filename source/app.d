@@ -1,24 +1,25 @@
+import std.stdio;
+import std.typecons;
 import entity;
 import geom;
 import graphics;
 import input;
-import std.parallelism;
-import std.stdio;
-import std.typecons;
 import tilemap;
-import update;
+import game;
 import util;
 
 void main()
 {
 	auto window = Window("Project Divisus", 640, 480);
-	auto draw = window.createRenderer(); 
-	Game game = new Game(draw);
-	while(true)
+	Game game = new Game(window.draw);
+	while(!window.closed)
 	{
 		Nullable!Event event;
 		while(!(event = pollEvent).isNull())
 			window.processEvent(event);
+		game.update();
+		game.render(window.draw);
+		sleep(16);
 	}
 
 }
