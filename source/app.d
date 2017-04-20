@@ -1,27 +1,26 @@
-import std.parallelism;
-import std.stdio;
-import tilemap;
 import entity;
 import geom;
+import graphics;
+import input;
+import std.parallelism;
+import std.stdio;
+import std.typecons;
+import tilemap;
+import update;
+import util;
 
 alias Map = Tilemap!(int, 640, 480, 32);
 
 void main()
 {
-	Map map = new Map;
-	for(int i = 0; i < 480; i++)
-		map.put(1, Vector2(i, i));
-	Entity[] entities;
-	entities.length = 480;
-	for(int i = 0; i < entities.length; i++)
+	auto window = Window("Project Divisus", 640, 480);
+	auto draw = window.createRenderer(); 
+	Game game = new Game(draw);
+	while(true)
 	{
-		entities[i] = Entity(Rect(450, i, 32, 32), Vector2(-1, 0));
+		Nullable!Event event;
+		while(!(event = pollEvent).isNull())
+			window.processEvent(event);
 	}
-	for(int i = 0; i < 1000; i++) 
-	{
-		foreach(index, ref ent; taskPool.parallel(entities))
-		{
-			map.slide(ent.bounds, ent.speed, ent.bounds, ent.speed);
-		}
-	}
+
 }
