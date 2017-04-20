@@ -9,8 +9,6 @@ import tilemap;
 import update;
 import util;
 
-alias Map = Tilemap!(int, 640, 480, 32);
-
 void main()
 {
 	auto window = Window("Project Divisus", 640, 480);
