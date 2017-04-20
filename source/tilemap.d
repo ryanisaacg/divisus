@@ -89,19 +89,19 @@ class Tilemap(T, int Width, int Height, int TileSize) {
 	///Remove an item from a region
 	void remove(Rect area) { do_region!remove_array(area); }
 	
-	private void is_empty_array(int x, int y, bool *empty) { 
+	pure private void is_empty_array(int x, int y, bool *empty) { 
 		if(valid(x, y)) 
 			*empty &= data[x][y].isNull(); 
 		else
 			*empty = false;
 	}
 	///Check if a point is empty
-	bool is_empty(Vector2 point) { bool empty = true; do_point!is_empty_array(point, &empty); return empty; }
+	pure bool is_empty(Vector2 point) { bool empty = true; do_point!is_empty_array(point, &empty); return empty; }
 	///Check if a region is empty
-	bool is_empty(Rect area) { bool empty = true; do_region!is_empty_array(area, &empty); return empty; }
+	pure bool is_empty(Rect area) { bool empty = true; do_region!is_empty_array(area, &empty); return empty; }
 	
 	///Get the elements at a point
-	private Nullable!T get_array(int x, int y) { 
+	pure private Nullable!T get_array(int x, int y) { 
 		if(valid(x, y)) 
 			return data[x][y]; 
 		else {
@@ -109,7 +109,12 @@ class Tilemap(T, int Width, int Height, int TileSize) {
 			return empty;
 		}
 	}
-	Nullable!T get(Vector2 point) { return do_point!get_array(point); }
+	pure Nullable!T get(Vector2 point) { return do_point!get_array(point); }
+
+	pure bool supported(Rect rect) {
+		rect.y += 1;
+		return !is_empty(rect);
+	}
 	
 	/** Move a rectangle at a speed
 	 * If there is a non-empty spot in the way, stop the movement and return that stopped position and displacement
