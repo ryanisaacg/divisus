@@ -19,7 +19,7 @@ class Game
 	{
 		map = new Map;
 		entities.length = 1;
-		entities[0] = Entity(Rect(100, 100, 32, 32), Vector2(0, 0), Vector2(0, 0.1), Vector2(0.25, 0), Vector2(4, 20), EntityType.Player);
+		entities[0] = Entity(Rect(100, 100, 32, 32), Vector2(0, 0), Vector2(0, 1), Vector2(0.25, 0), Vector2(4, 20), EntityType.Player);
 		playerTex = draw.loadTexture("player.png");
 	}
 
@@ -32,11 +32,15 @@ class Game
 				entity.acceleration.x = 0;
 				if(keys.isPressed!"D")
 				{
-					entity.acceleration.x = 0.5;
+					entity.acceleration.x += 0.5;
 				} 
-				else if(keys.isPressed!"A")
+				if(keys.isPressed!"A")
 				{
-					entity.acceleration.x = -0.5;
+					entity.acceleration.x -= 0.5;
+				}
+				if(keys.isPressed!"W" && !prevKeys.isPressed!"W" && map.supported(entity.bounds))
+				{
+					entity.velocity.y = -20;
 				}
 				if(sgn(entity.velocity.x) != sgn(entity.acceleration.x))
 				{
