@@ -7,3 +7,7 @@ __test__*__
 divisus
 *.selections.*
 *.exe
+*.dll
+*.lib
+*.a
+*.so
