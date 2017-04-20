@@ -1,4 +1,4 @@
-import core.math;
+import std.math;
 
 /**
  * Vector2- A 2-Dimensional vector
@@ -19,6 +19,26 @@ struct Vector2 {
 	pure Vector2 normalize() {
 		float length = len();
 		return Vector2(x / length, y / length);
+	}
+	pure Vector2 limit(Vector2 limit) {
+		Vector2 limited = Vector2(x, y);
+		if(abs(x) > limit.x)
+			limited.x = sgn(x) * limit.x;
+		if(abs(y) > limit.y)
+			limited.y = sgn(y) * limit.y;
+		return limited;
+	}
+	pure Vector2 drag(Vector2 amount) {
+		Vector2 limited = Vector2(x, y);
+		if(abs(x) > amount.x)
+			limited.x = x - sgn(x) * amount.x;
+		else
+			limited.x = 0;
+		if(abs(y) > amount.y)
+			limited.y = y - sgn(y) * amount.y;
+		else
+			limited.y = 0;
+		return limited;
 	}
 	pure Vector2 setLength(float length) {
 		return normalize().scale(length);
