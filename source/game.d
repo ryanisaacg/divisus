@@ -1,7 +1,9 @@
+import std.math;
 import std.parallelism;
 import entity;
 import geom;
 import graphics;
+import input;
 import tilemap;
 
 class Game
@@ -17,17 +19,34 @@ class Game
 	{
 		map = new Map;
 		entities.length = 1;
-		entities[0] = Entity(Rect(100, 100, 32, 32), Vector2(0, 0), Vector2(0, 0.01), EntityType.Player);
+		entities[0] = Entity(Rect(100, 100, 32, 32), Vector2(0, 0), Vector2(0, 0.1), Vector2(0.25, 0), Vector2(4, 20), EntityType.Player);
 		playerTex = draw.loadTexture("player.bmp");
 	}
 
-	void update()
+	void update(Keyboard keys, Keyboard prevKeys, Mouse mouse, Mouse prevMouse)
 	{
 		foreach(i, ref entity; taskPool.parallel(entities))
 		{
-			entity.speed = entity.speed + entity.acceleration;
-			map.slide(entity.bounds, entity.speed, entity.bounds, entity.speed);
+			if(entity.type == EntityType.Player) 
+			{
+				entity.acceleration.x = 0;
+				if(keys.isPressed!"D")
+				{
+					entity.acceleration.x = 0.5;
+				} 
+				else if(keys.isPressed!"A")
+				{
+					entity.acceleration.x = -0.5;
+				}
+				if(sgn(entity.velocity.x) != sgn(entity.acceleration.x))
+				{
+					entity.acceleration.x *= 2;
+				}
+			}
+			entity.velocity = (entity.velocity + entity.acceleration).limit(entity.maxVelocity).drag(entity.drag);
+			map.slide(entity.bounds, entity.velocity, entity.bounds, entity.velocity);
 		}
+
 	}
 
 	void render(Renderer draw)

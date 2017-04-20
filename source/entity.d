@@ -4,7 +4,6 @@ enum EntityType { Player }
 
 struct Entity {
 	Rect bounds;
-	Vector2 speed;
-	Vector2 acceleration;
+	Vector2 velocity, acceleration, drag, maxVelocity;
 	EntityType type;
 }

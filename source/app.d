@@ -14,10 +14,11 @@ void main()
 	Game game = new Game(window.draw);
 	while(!window.closed)
 	{
+		window.resetInput();
 		Nullable!Event event;
 		while(!(event = pollEvent).isNull())
 			window.processEvent(event);
-		game.update();
+		game.update(window.keyboard, window.previousKeyboard, window.mouse, window.previousMouse);
 		game.render(window.draw);
 		sleep(16);
 	}
