@@ -20,7 +20,7 @@ class Game
 		map = new Map;
 		entities.length = 1;
 		entities[0] = Entity(Rect(100, 100, 32, 32), Vector2(0, 0), Vector2(0, 0.1), Vector2(0.25, 0), Vector2(4, 20), EntityType.Player);
-		playerTex = draw.loadTexture("player.bmp");
+		playerTex = draw.loadTexture("player.png");
 	}
 
 	void update(Keyboard keys, Keyboard prevKeys, Mouse mouse, Mouse prevMouse)

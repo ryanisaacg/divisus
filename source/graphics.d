@@ -1,4 +1,5 @@
 import derelict.sdl2.sdl;
+import derelict.sdl2.image;
 import derelict.sdl2.ttf;
 import input;
 import util;
@@ -22,7 +23,9 @@ struct Window {
 		//Load the libraries if this is the first window
 		if(window_refs == 0) {
 			DerelictSDL2.load();
+			DerelictSDL2Image.load();
 			checkError!SDL_GetError(SDL_Init(SDL_INIT_VIDEO) < 0, "SDL Initialization for window " ~ title);
+			checkError!IMG_GetError(IMG_Init(IMG_INIT_PNG | IMG_INIT_JPG) != (IMG_INIT_PNG | IMG_INIT_JPG), "SDL_Image initialization");
 		}
 		window_refs ++;
 		this.width = width;
@@ -136,7 +139,7 @@ struct Renderer {
 	
 	Texture loadTexture(string path) {
 		//Load surface from a file
-		SDL_Surface *surface = SDL_LoadBMP(path.toStringz());
+		SDL_Surface *surface = IMG_Load(path.toStringz());
 		checkError!SDL_GetError(surface == null, "Loading BMP file " ~ path);
 		//Load texutre from surface
 		SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
