@@ -26,7 +26,7 @@ void updatePlayer(ref Player player, Keyboard keys, Keyboard prevKeys, Map map)
 		player.holdingJump = true;
 	}
 	player.holdingJump = player.holdingJump && keys.isPressed!"W";
-	player.acceleration.y = player.holdingJump ? 0.5 : 1;
+	player.acceleration.y = player.holdingJump ? 0.5 : 1.2;
 	if(sgn(player.velocity.x) != sgn(player.acceleration.x))
 	{
 		player.acceleration.x *= 2;
@@ -51,7 +51,7 @@ void updateEnemy(ref Enemy enemy, Map map)
 	}
 }
 
-void updateEntity(Entity)(ref Entity entity, Map map)
+void moveEntity(Entity)(ref Entity entity, Map map)
 {
 	entity.velocity = (entity.velocity + entity.acceleration).limit(entity.maxVelocity).drag(entity.drag);
 	map.slide(entity.bounds, entity.velocity, entity.bounds, entity.velocity);
@@ -83,11 +83,11 @@ class Game
 	void update(Keyboard keys, Keyboard prevKeys, Mouse mouse, Mouse prevMouse)
 	{
 		updatePlayer(player, keys, prevKeys, map);
-		updateEntity(player, map);
+		moveEntity(player, map);
 		foreach(ref enemy; enemies)
 		{
 			updateEnemy(enemy, map);
-			updateEntity(enemy, map);
+			moveEntity(enemy, map);
 		}
 	}
 
