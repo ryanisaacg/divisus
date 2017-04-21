@@ -1,9 +1,7 @@
 import geom;
 
-enum EntityType { Player }
-
-struct Entity {
+struct Entity 
+{
 	Rect bounds;
 	Vector2 velocity, acceleration, drag, maxVelocity;
-	EntityType type;
 }

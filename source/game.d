@@ -1,74 +1,70 @@
 import std.math;
 import std.parallelism;
+import std.stdio;
 import entity;
 import geom;
 import graphics;
 import input;
 import tilemap;
+	
+alias Map = Tilemap!(int, 640, 480, 32);
+
+void updatePlayer(ref Entity player, Keyboard keys, Keyboard prevKeys, Map map) 
+{
+	player.acceleration.x = 0;
+	if(keys.isPressed!"D")
+	{
+		player.acceleration.x += 0.5;
+	} 
+	if(keys.isPressed!"A")
+	{
+		player.acceleration.x -= 0.5;
+	}
+	if(keys.isPressed!"W" && !prevKeys.isPressed!"W" && map.supported(player.bounds))
+	{
+		player.velocity.y = -20;
+	}
+	if(sgn(player.velocity.x) != sgn(player.acceleration.x))
+	{
+		player.acceleration.x *= 2;
+	}
+}
+
+void updateEntity(ref Entity entity, Map map)
+{
+	entity.velocity = (entity.velocity + entity.acceleration).limit(entity.maxVelocity).drag(entity.drag);
+	map.slide(entity.bounds, entity.velocity, entity.bounds, entity.velocity);
+}
+
+void renderTex(Renderer draw, Texture texture, Rect bounds)
+{
+	draw.draw(texture, cast(int)bounds.x, cast(int)bounds.y, cast(int)bounds.width, cast(int)bounds.height);
+}
 
 class Game
 {
-	alias Map = Tilemap!(int, 640, 480, 32);
-
 	Map map;
-	Entity[] entities;
+	Entity player;
 
 	Texture playerTex;
 
 	this(Renderer draw)
 	{
 		map = new Map;
-		entities.length = 1;
-		entities[0] = Entity(Rect(100, 100, 32, 32), Vector2(0, 0), Vector2(0, 1), Vector2(0.25, 0), Vector2(4, 20), EntityType.Player);
+		player = Entity(Rect(100, 100, 32, 32), Vector2(0, 0), Vector2(0, 1), Vector2(0.25, 0), Vector2(4, 20));
 		playerTex = draw.loadTexture("player.png");
 	}
 
 	void update(Keyboard keys, Keyboard prevKeys, Mouse mouse, Mouse prevMouse)
 	{
-		foreach(i, ref entity; taskPool.parallel(entities))
-		{
-			if(entity.type == EntityType.Player) 
-			{
-				entity.acceleration.x = 0;
-				if(keys.isPressed!"D")
-				{
-					entity.acceleration.x += 0.5;
-				} 
-				if(keys.isPressed!"A")
-				{
-					entity.acceleration.x -= 0.5;
-				}
-				if(keys.isPressed!"W" && !prevKeys.isPressed!"W" && map.supported(entity.bounds))
-				{
-					entity.velocity.y = -20;
-				}
-				if(sgn(entity.velocity.x) != sgn(entity.acceleration.x))
-				{
-					entity.acceleration.x *= 2;
-				}
-			}
-			entity.velocity = (entity.velocity + entity.acceleration).limit(entity.maxVelocity).drag(entity.drag);
-			map.slide(entity.bounds, entity.velocity, entity.bounds, entity.velocity);
-		}
-
+		updatePlayer(player, keys, prevKeys, map);
+		updateEntity(player, map);
 	}
 
 	void render(Renderer draw)
 	{
 		draw.clear();
-		foreach(i, ref entity; entities)
-		{
-			Texture tex;
-			switch(entity.type)
-			{
-			case EntityType.Player:
-				tex = playerTex;
-				break;
-			default:
-				break;
-			}
-			draw.draw(tex, cast(int)entity.bounds.x, cast(int)entity.bounds.y, cast(int)entity.bounds.width, cast(int)entity.bounds.height);
-		}
+		renderTex(draw, playerTex, player.bounds);
 		draw.display();
 	}
 
