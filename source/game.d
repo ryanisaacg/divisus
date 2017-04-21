@@ -28,6 +28,7 @@ class Game
 		enemyTex = playerTex;
 		enemies.length = 1;
 		enemies[0] = Enemy(Rect(200, 200, 32, 32), Vector2(5, 0), Vector2(0, 1), Vector2(0, 0), Vector2(5, 5));
+		camera = Rect(0, 0, 640, 480);
 	}
 
 	void update(Keyboard keys, Keyboard prevKeys, Mouse mouse, Mouse prevMouse)
@@ -41,12 +42,12 @@ class Game
 		}
 	}
 
-	void render(Window win)
+	void render(ref Window win)
 	{
 		win.draw.clear();
-		renderTex(draw, playerTex, player.bounds);
+		renderTex(win, playerTex, player.bounds);
 		foreach(ref enemy; enemies)
-			renderTex(draw, enemyTex, enemy.bounds);
+			renderTex(win, enemyTex, enemy.bounds);
 		win.draw.display();
 	}
 
@@ -98,7 +99,7 @@ class Game
 		}
 	}
 
-	void renderTex(Window win, Texture texture, Rect bounds)
+	void renderTex(ref Window win, Texture texture, Rect bounds)
 	{
 		bounds.x -= camera.x;
 		bounds.y -= camera.y;
@@ -106,7 +107,8 @@ class Game
 		float y = win.height / camera.height;
 		bounds.x *= win.width / camera.width;
 		bounds.y *= win.height / camera.height;
-		bounds.width = win
+		bounds.width *= win.width / camera.width;
+		bounds.height *= win.height / camera.height;
 		win.draw.draw(texture, cast(int)bounds.x, cast(int)bounds.y, cast(int)bounds.width, cast(int)bounds.height);
 	}
 }
