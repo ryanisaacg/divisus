@@ -104,13 +104,15 @@ struct Renderer {
 		SDL_SetRenderTarget(renderer, null);
 	}
 
-	void draw(Texture t, int x = 0, int y = 0, int width = 0, int height = 0, double angle = 0, bool flipX = false, bool flipY = false) {
+	void draw(Texture t, int x = 0, int y = 0, int width = 0, int height = 0, double angle = 0, bool flipX = false, bool flipY = false, ubyte alpha = cast(ubyte)255) {
+		SDL_SetTextureAlphaMod(t.texture, alpha);
 		SDL_Rect source = t.sourceRect();
 		SDL_Rect dest = SDL_Rect(x, y, width, height);
 		SDL_Point point = SDL_Point(t.centerX, t.centerY);
 		SDL_RendererFlip flip = SDL_FLIP_NONE | (SDL_FLIP_HORIZONTAL & flipX) | (SDL_FLIP_VERTICAL & flipY);
 		int code = SDL_RenderCopyEx(renderer, t.texture, &source, &dest, angle, &point, flip);
 		checkError!SDL_GetError(code < 0, "Draw");
+		SDL_SetTextureAlphaMod(t.texture, 255);
 	}
 
 	Texture renderText(Font f, string text, Color c) {

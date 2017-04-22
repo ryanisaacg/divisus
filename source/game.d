@@ -45,9 +45,9 @@ class Game
 	void render(ref Window win)
 	{
 		win.draw.clear();
-		renderTex(win, playerTex, player.bounds);
+		renderTex(win, playerTex, player.bounds, player.iframes != 0 ? 128 : 255);
 		foreach(ref enemy; enemies)
-			renderTex(win, enemyTex, enemy.bounds);
+			renderTex(win, enemyTex, enemy.bounds, 255);
 		win.draw.display();
 	}
 
@@ -79,6 +79,8 @@ class Game
 		{
 			player.acceleration.x *= 2;
 		}
+		if(player.iframes > 0)
+			player.iframes--;
 	}
 
 	void updateEnemy(ref Enemy enemy)
@@ -86,6 +88,7 @@ class Game
 		switch(enemy.type)
 		{
 		case EnemyType.Patrol:
+			//Patrol back and forth, switching at walls and not walking off platforms
 			Rect bounds = enemy.bounds;
 			bounds.x += enemy.velocity.x;
 			if(!map.is_empty(bounds))
@@ -97,9 +100,15 @@ class Game
 		default:
 			break;
 		}
+		//Hit-based enemies
+		if(enemy.type == EnemyType.Patrol && player.iframes == 0 && player.bounds.overlaps(enemy.bounds))
+		{
+			player.power --;
+			player.iframes = 60;
+		}
 	}
 
-	void renderTex(ref Window win, Texture texture, Rect bounds)
+	void renderTex(ref Window win, Texture texture, Rect bounds, ubyte alpha)
 	{
 		bounds.x -= camera.x;
 		bounds.y -= camera.y;
@@ -109,7 +118,7 @@ class Game
 		bounds.y *= win.height / camera.height;
 		bounds.width *= win.width / camera.width;
 		bounds.height *= win.height / camera.height;
-		win.draw.draw(texture, cast(int)bounds.x, cast(int)bounds.y, cast(int)bounds.width, cast(int)bounds.height);
+		win.draw.draw(texture, cast(int)bounds.x, cast(int)bounds.y, cast(int)bounds.width, cast(int)bounds.height, 0, false, false, alpha);
 	}
 }
 
