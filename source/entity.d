@@ -22,8 +22,9 @@ struct Enemy
 	int health;
 }
 
-struct Shield
+struct Projectile
 {
 	Rect bounds;
 	Vector2 velocity;
+	int health;
 }

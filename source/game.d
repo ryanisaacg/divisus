@@ -17,9 +17,9 @@ class Game
 	Map map;
 	Player player;
 	Array!Enemy enemies;
-	Array!Shield shields;
+	Array!Projectile shields, enemyBullets, playerBullets;
 
-	Texture playerTex, enemyTex, shieldTex;
+	Texture playerTex, enemyTex, shieldTex, playerBulletTex, enemyBulletTex;
 
 	Rect camera;
 
@@ -28,10 +28,12 @@ class Game
 		map = new Map;
 		player = Player(Rect(100, 100, 32, 32), Vector2(0, 0), Vector2(0, 1), Vector2(0.25, 0), Vector2(4, 20));
 		player.a = PlayerAbility.Dash;
-		player.b = PlayerAbility.Block;
+		player.b = PlayerAbility.Shoot;
 		playerTex = draw.loadTexture("player.png");
 		enemyTex = playerTex;
 		shieldTex = playerTex;
+		playerBulletTex = playerTex;
+		enemyBulletTex = playerTex;
 		enemies.insertBack(Enemy(Rect(200, 200, 32, 32), Vector2(5, 0), Vector2(0, 1), Vector2(0, 0), Vector2(5, 5), EnemyType.Patrol, 1));
 		camera = Rect(0, 0, 640, 480);
 	}
@@ -49,6 +51,38 @@ class Game
 		{
 			shield.bounds.x += shield.velocity.x;
 			shield.bounds.y += shield.velocity.y;
+			foreach(ref enemyBullet; enemyBullets)
+			{
+				if(shield.bounds.overlaps(enemyBullet.bounds))
+				{
+					shield.health--;
+					enemyBullet.health--;
+				}
+			}
+		}
+		foreach(ref playerBullet; playerBullets)
+		{
+			playerBullet.bounds.x += playerBullet.velocity.x;
+			playerBullet.bounds.y += playerBullet.velocity.y;
+			foreach(ref enemy; enemies)
+			{
+				if(playerBullet.bounds.overlaps(enemy.bounds))
+				{
+					playerBullet.health--;
+					enemy.health--;
+				}
+			}
+		}
+		foreach(ref enemyBullet; enemyBullets)
+		{
+			enemyBullet.bounds.x += enemyBullet.velocity.x;
+			enemyBullet.bounds.y += enemyBullet.velocity.y;
+			if(player.iframes <= 0 && player.bounds.overlaps(enemyBullet.bounds))
+			{
+				if(player.currentAction != PlayerAbility.Dash)
+					player.power--;
+				enemyBullet.health--;
+			}
 		}
 	}
 
@@ -60,6 +94,10 @@ class Game
 			renderTex(win, enemyTex, enemy.bounds, 255);
 		foreach(ref shield; shields)
 			renderTex(win, shieldTex, shield.bounds, 128);
+		foreach(ref bullet; playerBullets)
+			renderTex(win, playerBulletTex, bullet.bounds, 255);
+		foreach(ref bullet; enemyBullets)
+			renderTex(win, enemyBulletTex, bullet.bounds, 255);
 		win.draw.display();
 	}
 
@@ -115,7 +153,7 @@ class Game
 		if(player.abilityCooldown > 0) return;
 		switch(ability) {
 		case PlayerAbility.Block:
-			shields.insertBack(Shield(Rect(player.bounds.x + player.bounds.width / 2 - 2, 
+			shields.insertBack(Projectile(Rect(player.bounds.x + player.bounds.width / 2 - 2, 
 					player.bounds.y, 4, player.bounds.height), 
 					Vector2(10 * (player.faceLeft ? -1 : 1), 0)));
 			player.abilityCooldown = 15;
@@ -144,7 +182,10 @@ class Game
 			player.abilityCooldown = 5;
 			break;
 		case PlayerAbility.Shoot:
-			//TODO: implement
+			playerBullets.insertBack(Projectile(Rect(player.bounds.x + player.bounds.width / 2 - 2,
+					player.bounds.y + player.bounds.height / 2 - 2, 4, 4),
+					Vector2(15 * (player.faceLeft ? -1 : 1), 0)));
+			player.abilityCooldown = 15;
 			break;
 		default:
 			break;
@@ -197,26 +238,40 @@ class Game
 		win.draw.draw(texture, cast(int)bounds.x, cast(int)bounds.y, cast(int)bounds.width, cast(int)bounds.height, 0, false, false, alpha);
 	}
 
+
+	void clearProjectiles(Array!Projectile projectiles)
+	{
+		for(int i = 0; i < projectiles.length; i++)
+		{
+			if(projectiles[i].health < 0 || !map.is_empty(projectiles[i].bounds))
+			{
+				projectiles[i] = projectiles[$ - 1];
+				projectiles.removeBack();
+				i--;
+			}
+		}
+	}
+
+	void clearByHealth(T)(Array!T entities)
+	{
+		for(int i = 0; i < entities.length; i++)
+		{
+			if(entities[i].health <= 0)
+			{
+				entities[i] = entities[$ - 1];
+				entities.removeBack();
+				i--;
+			}
+		}
+
+	}
+
 	void clearDead()
 	{
-		for(int i = 0; i < shields.length; i++)
-		{
-			if(!map.is_empty(shields[i].bounds))
-			{
-				shields[i] = shields[$ - 1];
-				shields.removeBack();
-				i--;
-			}
-		}
-		for(int i = 0; i < enemies.length; i++)
-		{
-			if(enemies[i].health < 0)
-			{
-				enemies[i] = enemies[$ - 1];
-				enemies.removeBack();
-				i--;
-			}
-		}
+		clearProjectiles(shields);
+		clearProjectiles(playerBullets);
+		clearProjectiles(enemyBullets);
+		clearByHealth(enemies);
 	}
 }
 
