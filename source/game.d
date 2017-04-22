@@ -87,14 +87,14 @@ class Game
 			player.velocity.y = -12;
 			player.holdingJump = true;
 		}
-		if(keys.isPressed!"J" && !prevKeys.isPressed!"J")
+		if(keys.isPressed!"J")
 			doAbility(player.b);
-		if(keys.isPressed!"K" && !prevKeys.isPressed!"K")
+		if(keys.isPressed!"K")
 			doAbility(player.a);
+		if(player.abilityCooldown <= 0)
+			player.currentAction = PlayerAbility.None;
 		else
-		{
 			player.abilityCooldown--;
-		}
 
 		player.holdingJump = player.holdingJump && keys.isPressed!"W";
 		player.acceleration.y = player.holdingJump ? 0.5 : 1.2;
@@ -118,7 +118,6 @@ class Game
 			break;
 		case PlayerAbility.Reflect:
 			player.abilityCooldown = 60;
-			player.currentAction = PlayerAbility.Reflect;
 			break;
 		case PlayerAbility.Strike:
 			Rect hitbox = Rect(player.bounds.x + player.bounds.width / 2, 
@@ -133,7 +132,6 @@ class Game
 				}
 			}
 			player.abilityCooldown = 60;
-			player.currentAction = PlayerAbility.Strike;
 			break;
 		case PlayerAbility.Dash:
 			//TODO: implement
@@ -144,6 +142,7 @@ class Game
 		default:
 			break;
 		}
+		player.currentAction = ability;
 	}
 
 	@nogc void updateEnemy(ref Enemy enemy)
