@@ -1,3 +1,4 @@
+import std.algorithm;
 import std.math;
 import std.parallelism;
 import std.stdio;
@@ -24,6 +25,8 @@ class Game
 	{
 		map = new Map;
 		player = Player(Rect(100, 100, 32, 32), Vector2(0, 0), Vector2(0, 1), Vector2(0.25, 0), Vector2(4, 20));
+		player.a = PlayerAbility.Strike;
+		player.b = PlayerAbility.Strike;
 		playerTex = draw.loadTexture("player.png");
 		enemyTex = playerTex;
 		enemies.length = 1;
@@ -62,10 +65,12 @@ class Game
 		player.acceleration.x = 0;
 		if(keys.isPressed!"D")
 		{
+			player.faceLeft = false;
 			player.acceleration.x += 0.5;
 		} 
 		if(keys.isPressed!"A")
 		{
+			player.faceLeft = true;
 			player.acceleration.x -= 0.5;
 		}
 		if(keys.isPressed!"W" && !prevKeys.isPressed!"W" && map.supported(player.bounds))
@@ -73,13 +78,10 @@ class Game
 			player.velocity.y = -12;
 			player.holdingJump = true;
 		}
-		if(player.abilityCooldown <= 0) 
-		{
-			if(keys.isPressed!"J")
-				doAbility(player.b);
-			if(keys.isPressed!"K")
-				doAbility(player.a);
-		}
+		if(keys.isPressed!"J" && !prevKeys.isPressed!"J")
+			doAbility(player.b);
+		if(keys.isPressed!"K" && !prevKeys.isPressed!"K")
+			doAbility(player.a);
 		else
 		{
 			player.abilityCooldown--;
@@ -97,7 +99,39 @@ class Game
 
 	void doAbility(PlayerAbility ability)
 	{
-
+		if(player.abilityCooldown > 0) return;
+		switch(ability) {
+		case PlayerAbility.Block:
+			//TODO: implement
+			break;
+		case PlayerAbility.Reflect:
+			//TODO: impelement
+			break;
+		case PlayerAbility.Strike:
+			Rect hitbox = Rect(player.bounds.x + player.bounds.width / 2, 
+					player.bounds.y + player.bounds.height / 2 - 3, 96, 6);
+			if(player.faceLeft)
+				hitbox.x -= 96;
+			for(int i = 0; i < enemies.length; i++) 
+			{
+				if(enemies[i].bounds.overlaps(hitbox)) 
+				{
+					enemies[i] = enemies[$ - 1];
+					enemies.length--;
+					i--;
+				}
+			}
+			player.abilityCooldown = 60;
+			break;
+		case PlayerAbility.Dash:
+			//TODO: implement
+			break;
+		case PlayerAbility.Shoot:
+			//TODO: implement
+			break;
+		default:
+			break;
+		}
 	}
 
 	void updateEnemy(ref Enemy enemy)
