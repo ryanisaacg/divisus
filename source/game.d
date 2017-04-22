@@ -27,7 +27,7 @@ class Game
 	{
 		map = new Map;
 		player = Player(Rect(100, 100, 32, 32), Vector2(0, 0), Vector2(0, 1), Vector2(0.25, 0), Vector2(4, 20));
-		player.a = PlayerAbility.Strike;
+		player.a = PlayerAbility.Dash;
 		player.b = PlayerAbility.Block;
 		playerTex = draw.loadTexture("player.png");
 		enemyTex = playerTex;
@@ -92,7 +92,11 @@ class Game
 		if(keys.isPressed!"K")
 			doAbility(player.a);
 		if(player.abilityCooldown <= 0)
+		{
 			player.currentAction = PlayerAbility.None;
+			player.maxVelocity.x = 4;
+			player.drag.x = 0.25;
+		}
 		else
 			player.abilityCooldown--;
 
@@ -134,7 +138,10 @@ class Game
 			player.abilityCooldown = 60;
 			break;
 		case PlayerAbility.Dash:
-			//TODO: implement
+			player.velocity.x = 30 * (player.faceLeft ? -1 : 1);
+			player.maxVelocity.x = 30;
+			player.drag.x = 0;
+			player.abilityCooldown = 5;
 			break;
 		case PlayerAbility.Shoot:
 			//TODO: implement
@@ -165,8 +172,15 @@ class Game
 		//Hit-based enemies
 		if(enemy.type == EnemyType.Patrol && player.iframes == 0 && player.bounds.overlaps(enemy.bounds))
 		{
-			player.power --;
-			player.iframes = 60;
+			if(player.currentAction == PlayerAbility.Dash)
+			{
+				enemy.health--;
+			}
+			else
+			{
+				player.power --;
+				player.iframes = 60;
+			}
 		}
 	}
 
