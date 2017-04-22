@@ -7,20 +7,20 @@ import std.math;
 struct Vector2 {
 	float x, y;
 
-	pure float len() {
+	@nogc pure float len() {
 		return sqrt(len2());
 	}
-	pure float len2() {
+	@nogc pure float len2() {
 		return y * y + x * x;
 	}
-	pure Vector2 scale(float scalar) {
+	@nogc pure Vector2 scale(float scalar) {
 		return Vector2(x * scalar, y * scalar);
 	}
-	pure Vector2 normalize() {
+	@nogc pure Vector2 normalize() {
 		float length = len();
 		return Vector2(x / length, y / length);
 	}
-	pure Vector2 limit(Vector2 limit) {
+	@nogc pure Vector2 limit(Vector2 limit) {
 		Vector2 limited = Vector2(x, y);
 		if(abs(x) > limit.x)
 			limited.x = sgn(x) * limit.x;
@@ -28,7 +28,7 @@ struct Vector2 {
 			limited.y = sgn(y) * limit.y;
 		return limited;
 	}
-	pure Vector2 drag(Vector2 amount) {
+	@nogc pure Vector2 drag(Vector2 amount) {
 		Vector2 limited = Vector2(x, y);
 		if(abs(x) > amount.x)
 			limited.x = x - sgn(x) * amount.x;
@@ -40,19 +40,19 @@ struct Vector2 {
 			limited.y = 0;
 		return limited;
 	}
-	pure Vector2 setLength(float length) {
+	@nogc pure Vector2 setLength(float length) {
 		return normalize().scale(length);
 	}
-	pure Vector2 opUnary(string op)() {
+	@nogc pure Vector2 opUnary(string op)() {
 		static if(op == "+") return this;
 		else static if(op == "-") return Vector2(-x, -y);
 	}
-	pure Vector2 opBinary(string op)(Vector2 other) {
+	@nogc pure Vector2 opBinary(string op)(Vector2 other) {
 		static if (op == "+") return Vector2(x + other.x, y + other.y);
 		else static if (op == "-") return Vector2(x - other.x, y - other.y);
 		else static assert(0, "Operator "~op~" not implemented");
 	}
-	pure Vector2 opBinary(string op)(float other) {
+	@nogc pure Vector2 opBinary(string op)(float other) {
 		static if (op == "*") return scale(other);
 		else static if (op == "/") return Vector2(x / other, y / other);
 		else static assert(0, "Operator "~op~" not implemented");
@@ -60,7 +60,7 @@ struct Vector2 {
 }
 
 ///Compare two vectors
-pure bool opEquals(Vector2 a, Vector2 b) {
+@nogc pure bool opEquals(Vector2 a, Vector2 b) {
 	return a.x == b.x && a.y == b.y;
 }
 
@@ -71,19 +71,19 @@ pure bool opEquals(Vector2 a, Vector2 b) {
 struct Rect {
 	float x, y, width, height;
 	
-	pure bool contains(Vector2 point) {
+	@nogc pure bool contains(Vector2 point) {
 		return point.x >= x && point.y >= y && point.x < x + width && point.y + y + height;
 	}
 	
-	pure bool overlaps(Rect other) {
+	@nogc pure bool overlaps(Rect other) {
 		return x < other.x + other.width && x + width > other.x && y < other.y + other.height && y + height > other.y;
 	}
 	
-	pure Rect move(Vector2 other) {
+	@nogc pure Rect move(Vector2 other) {
 		return Rect(x + other.x, y + other.y, width, height);
 	}
 
-	pure Rect boundingBox() {
+	@nogc pure Rect boundingBox() {
 		return Rect(x, y, width, height);
 	}
 }
@@ -95,16 +95,16 @@ struct Rect {
 struct Circle {
 	float x, y, radius;
 
-	pure bool contains(Vector2 point) {
+	@nogc pure bool contains(Vector2 point) {
 		return dist2(this, point) <= radius * radius;
 	}
 
-	pure bool overlaps(Circle other) {
+	@nogc pure bool overlaps(Circle other) {
 		float radSum = radius + other.radius;
 		return dist2(this, other) <= radSum * radSum;
 	}
 
-	pure Rect boundingBox() {
+	@nogc pure Rect boundingBox() {
 		return Rect(x - radius, y - radius, radius * 2, radius * 2);
 	}
 }

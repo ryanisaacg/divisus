@@ -12,12 +12,12 @@ class Tilemap(T, int Width, int Height, int TileSize) {
 	Nullable!T[Height / TileSize][Width / TileSize] data;
 	
 	//Converts a Vector2 to data grid coordinates
-	pure private void convert(Vector2 vec, out int x, out int y) {
+	@nogc pure private void convert(Vector2 vec, out int x, out int y) {
 		x = cast(int)(vec.x / TileSize);
 		y = cast(int)(vec.y / TileSize);
 	}
 	
-	pure private bool valid(int x, int y) {
+	@nogc pure private bool valid(int x, int y) {
 		return x >= 0 && y >= 0 && x < Width / TileSize && y < Height / TileSize;
 	} 
 	
@@ -89,19 +89,19 @@ class Tilemap(T, int Width, int Height, int TileSize) {
 	///Remove an item from a region
 	void remove(Rect area) { do_region!remove_array(area); }
 	
-	pure private void is_empty_array(int x, int y, bool *empty) { 
+	@nogc pure private void is_empty_array(int x, int y, bool *empty) { 
 		if(valid(x, y)) 
 			*empty &= data[x][y].isNull(); 
 		else
 			*empty = false;
 	}
 	///Check if a point is empty
-	pure bool is_empty(Vector2 point) { bool empty = true; do_point!is_empty_array(point, &empty); return empty; }
+	@nogc pure bool is_empty(Vector2 point) { bool empty = true; do_point!is_empty_array(point, &empty); return empty; }
 	///Check if a region is empty
-	pure bool is_empty(Rect area) { bool empty = true; do_region!is_empty_array(area, &empty); return empty; }
+	@nogc pure bool is_empty(Rect area) { bool empty = true; do_region!is_empty_array(area, &empty); return empty; }
 	
 	///Get the elements at a point
-	pure private Nullable!T get_array(int x, int y) { 
+	@nogc pure private Nullable!T get_array(int x, int y) { 
 		if(valid(x, y)) 
 			return data[x][y]; 
 		else {
@@ -109,9 +109,9 @@ class Tilemap(T, int Width, int Height, int TileSize) {
 			return empty;
 		}
 	}
-	pure Nullable!T get(Vector2 point) { return do_point!get_array(point); }
+	@nogc pure Nullable!T get(Vector2 point) { return do_point!get_array(point); }
 
-	pure bool supported(Rect rect) {
+	@nogc pure bool supported(Rect rect) {
 		rect.y += 1;
 		return !is_empty(rect);
 	}
@@ -121,7 +121,7 @@ class Tilemap(T, int Width, int Height, int TileSize) {
 	 * Precondition: area is a free rectangle
 	 * Postcondition: end_area is a free rectangle
 	 */
-	 void move(Rect area, Vector2 speed, out Rect end_area, out Vector2 end_speed) {
+	 @nogc void move(Rect area, Vector2 speed, out Rect end_area, out Vector2 end_speed) {
 		 //If the rect isn't free, reflect the inputs but nullify speed
 		if(!is_empty(area)) {
 			end_area = area;
@@ -148,7 +148,7 @@ class Tilemap(T, int Width, int Height, int TileSize) {
 	/**Slide a rectangle
 	 * Attempt to move with x-speed, then y-speed, to allow for cases where there would be friction in real physics
 	 */
-	void slide(Rect area, Vector2 speed, out Rect end_area, out Vector2 end_speed) {
+	@nogc void slide(Rect area, Vector2 speed, out Rect end_area, out Vector2 end_speed) {
 		Vector2 xspeed = Vector2(speed.x, 0);
 		Vector2 yspeed = Vector2(0, speed.y);
 		move(area, xspeed, end_area, xspeed);
@@ -156,11 +156,11 @@ class Tilemap(T, int Width, int Height, int TileSize) {
 		end_speed.x = xspeed.x;
 		end_speed.y = yspeed.y;
 	}
-	int width() {
+	@nogc pure int width() {
 		return Width;
 	}
 
-	int height() {
+	@nogc pure int height() {
 		return Height;
 	}
 }

@@ -86,32 +86,31 @@ struct Renderer {
 	SDL_Renderer *renderer;
 	private BlendMode blend = BlendMode.Blend;
 	
-	void destroy() {
+	@nogc void destroy() {
 		SDL_DestroyRenderer(renderer);
 	}
 
-	@property BlendMode mode() { return blend; }
-	@property BlendMode mode(BlendMode b) {
+	@nogc @property BlendMode mode() { return blend; }
+	@nogc @property BlendMode mode(BlendMode b) {
 		SDL_SetRenderDrawBlendMode(renderer, b);
 		return blend = b;
 	}
 
-	void setTarget(Texture t) {
+	@nogc void setTarget(Texture t) {
 		SDL_SetRenderTarget(renderer, t.texture);
 	}
 
-	void resetTarget() {
+	@nogc void resetTarget() {
 		SDL_SetRenderTarget(renderer, null);
 	}
 
-	void draw(Texture t, int x = 0, int y = 0, int width = 0, int height = 0, double angle = 0, bool flipX = false, bool flipY = false, ubyte alpha = cast(ubyte)255) {
+	@nogc void draw(Texture t, int x = 0, int y = 0, int width = 0, int height = 0, double angle = 0, bool flipX = false, bool flipY = false, ubyte alpha = cast(ubyte)255) {
 		SDL_SetTextureAlphaMod(t.texture, alpha);
 		SDL_Rect source = t.sourceRect();
 		SDL_Rect dest = SDL_Rect(x, y, width, height);
 		SDL_Point point = SDL_Point(t.centerX, t.centerY);
 		SDL_RendererFlip flip = SDL_FLIP_NONE | (SDL_FLIP_HORIZONTAL & flipX) | (SDL_FLIP_VERTICAL & flipY);
 		int code = SDL_RenderCopyEx(renderer, t.texture, &source, &dest, angle, &point, flip);
-		checkError!SDL_GetError(code < 0, "Draw");
 		SDL_SetTextureAlphaMod(t.texture, 255);
 	}
 
@@ -122,19 +121,19 @@ struct Renderer {
 		return tex;
 	}
 
-	void setColor(Color c) {
+	@nogc void setColor(Color c) {
 		SDL_SetRenderDrawColor(renderer, cast(ubyte)c.r, cast(ubyte)c.g, cast(ubyte)c.b, cast(ubyte)c.a);
 	}
 
-	void clear() {
+	@nogc void clear() {
 		SDL_RenderClear(renderer);
 	}
 
-	void display() {
+	@nogc void display() {
 		SDL_RenderPresent(renderer);
 	}
 
-	void fillRect(int x, int y, int width, int height) {
+	@nogc void fillRect(int x, int y, int width, int height) {
 		SDL_Rect rect = SDL_Rect(x, y, width, height);
 		SDL_RenderFillRect(renderer, &rect);
 	}
@@ -159,32 +158,32 @@ struct Texture {
 	int centerX = 0, centerY = 0;
 	private BlendMode blend = BlendMode.Blend;
 
-	this(SDL_Texture *tex) {
+	@nogc this(SDL_Texture *tex) {
 		texture = tex;
 		SDL_QueryTexture(texture, null, null, &width, &height);
 	}
 
-	this(Renderer rend, int width, int height, bool renderTarget = false) {
+	@nogc this(Renderer rend, int width, int height, bool renderTarget = false) {
 		texture = SDL_CreateTexture(rend.renderer, SDL_PIXELFORMAT_RGBA8888, renderTarget ? SDL_TEXTUREACCESS_TARGET : SDL_TEXTUREACCESS_STATIC, width, height);
 		this.width = width;
 		this.height = height;
 	}
 
-	this(Renderer rend, SDL_Surface *surface) {
+	@nogc this(Renderer rend, SDL_Surface *surface) {
 		this(SDL_CreateTextureFromSurface(rend.renderer, surface));
 	}
 
-	@property BlendMode mode() { return blend; }
-	@property BlendMode mode(BlendMode b) {
+	@nogc @property BlendMode mode() { return blend; }
+	@nogc @property BlendMode mode(BlendMode b) {
 		SDL_SetTextureBlendMode(texture, b);
 		return blend = b;
 	}
 	
-	void destroy() {
+	@nogc void destroy() {
 		SDL_DestroyTexture(texture);
 	}
 	
-	SDL_Rect sourceRect() {
+	@nogc SDL_Rect sourceRect() {
 		return SDL_Rect(x, y, width, height);
 	}
 }
@@ -205,8 +204,8 @@ struct Font {
 		font = TTF_OpenFont(name.toStringz(), size);
 	}
 
-	@property FontStyle style() { return cast(FontStyle)TTF_GetFontStyle(font); }
-	@property FontStyle style(FontStyle style) { TTF_SetFontStyle(font, style); return style; }
+	@nogc @property FontStyle style() { return cast(FontStyle)TTF_GetFontStyle(font); }
+	@nogc @property FontStyle style(FontStyle style) { TTF_SetFontStyle(font, style); return style; }
 
 	~this() {
 		TTF_CloseFont(font);
@@ -220,7 +219,7 @@ struct Font {
 struct Color {
 	int r, g, b, a; 
 
-	SDL_Color rawColor() {
+	@nogc SDL_Color rawColor() {
 		return SDL_Color(cast(ubyte)r, cast(ubyte)g, cast(ubyte)b, cast(ubyte)a);
 	}
 }
