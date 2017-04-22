@@ -19,6 +19,7 @@ void main()
 		while(!(event = pollEvent).isNull())
 			window.processEvent(event);
 		game.update(window.keyboard, window.previousKeyboard, window.mouse, window.previousMouse);
+		game.clearDead();
 		game.render(window);
 		sleep(16);
 	}
