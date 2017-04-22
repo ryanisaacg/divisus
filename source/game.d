@@ -73,6 +73,18 @@ class Game
 			player.velocity.y = -12;
 			player.holdingJump = true;
 		}
+		if(player.abilityCooldown <= 0) 
+		{
+			if(keys.isPressed!"J")
+				doAbility(player.b);
+			if(keys.isPressed!"K")
+				doAbility(player.a);
+		}
+		else
+		{
+			player.abilityCooldown--;
+		}
+
 		player.holdingJump = player.holdingJump && keys.isPressed!"W";
 		player.acceleration.y = player.holdingJump ? 0.5 : 1.2;
 		if(sgn(player.velocity.x) != sgn(player.acceleration.x))
@@ -81,6 +93,11 @@ class Game
 		}
 		if(player.iframes > 0)
 			player.iframes--;
+	}
+
+	void doAbility(PlayerAbility ability)
+	{
+
 	}
 
 	void updateEnemy(ref Enemy enemy)

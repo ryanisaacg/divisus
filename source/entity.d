@@ -5,9 +5,11 @@ struct Player
 	Rect bounds;
 	Vector2 velocity, acceleration, drag, maxVelocity;
 	bool holdingJump;
-	int power;
-	int iframes;
+	int power, iframes, abilityCooldown;
+	PlayerAbility a, b;
 }
+
+enum PlayerAbility { Block, Reflect, Strike, Dash, Shoot }
 
 enum EnemyType { Patrol }
 
