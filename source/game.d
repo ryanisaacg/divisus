@@ -16,8 +16,9 @@ class Game
 	Map map;
 	Player player;
 	Enemy[] enemies;
+	Shield[] shields;
 
-	Texture playerTex, enemyTex;
+	Texture playerTex, enemyTex, shieldTex;
 
 	Rect camera;
 
@@ -26,9 +27,10 @@ class Game
 		map = new Map;
 		player = Player(Rect(100, 100, 32, 32), Vector2(0, 0), Vector2(0, 1), Vector2(0.25, 0), Vector2(4, 20));
 		player.a = PlayerAbility.Strike;
-		player.b = PlayerAbility.Strike;
+		player.b = PlayerAbility.Block;
 		playerTex = draw.loadTexture("player.png");
 		enemyTex = playerTex;
+		shieldTex = playerTex;
 		enemies.length = 1;
 		enemies[0] = Enemy(Rect(200, 200, 32, 32), Vector2(5, 0), Vector2(0, 1), Vector2(0, 0), Vector2(5, 5));
 		camera = Rect(0, 0, 640, 480);
@@ -43,6 +45,18 @@ class Game
 			updateEnemy(enemy);
 			moveEntity(enemy);
 		}
+		for(int i = 0; i < shields.length; i++)
+		{
+			auto shield = &shields[i];
+			shield.bounds.x += shield.velocity.x;
+			shield.bounds.y += shield.velocity.y;
+			if(!map.is_empty(shield.bounds))
+			{
+				shields[i] = shields[$ - 1];
+				shields.length--;
+				i--;
+			}
+		}
 	}
 
 	void render(ref Window win)
@@ -51,6 +65,8 @@ class Game
 		renderTex(win, playerTex, player.bounds, player.iframes != 0 ? 128 : 255);
 		foreach(ref enemy; enemies)
 			renderTex(win, enemyTex, enemy.bounds, 255);
+		foreach(ref shield; shields)
+			renderTex(win, shieldTex, shield.bounds, 128);
 		win.draw.display();
 	}
 
@@ -102,10 +118,16 @@ class Game
 		if(player.abilityCooldown > 0) return;
 		switch(ability) {
 		case PlayerAbility.Block:
-			//TODO: implement
+			shields.length++;
+			shields[$ - 1] = Shield(Rect(player.bounds.x + player.bounds.width / 2 - 2, 
+						player.bounds.y, 4, player.bounds.height), 
+					Vector2(10 * (player.faceLeft ? -1 : 1), 0));
+			writeln(shields);
+			player.abilityCooldown = 15;
 			break;
 		case PlayerAbility.Reflect:
-			//TODO: impelement
+			player.abilityCooldown = 60;
+			player.currentAction = PlayerAbility.Reflect;
 			break;
 		case PlayerAbility.Strike:
 			Rect hitbox = Rect(player.bounds.x + player.bounds.width / 2, 
@@ -122,6 +144,7 @@ class Game
 				}
 			}
 			player.abilityCooldown = 60;
+			player.currentAction = PlayerAbility.Strike;
 			break;
 		case PlayerAbility.Dash:
 			//TODO: implement
