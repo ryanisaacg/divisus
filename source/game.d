@@ -1,4 +1,5 @@
 import std.algorithm;
+import std.container.array;
 import std.math;
 import std.parallelism;
 import std.stdio;
@@ -15,8 +16,8 @@ class Game
 {
 	Map map;
 	Player player;
-	Enemy[] enemies;
-	Shield[] shields;
+	Array!Enemy enemies;
+	Array!Shield shields;
 
 	Texture playerTex, enemyTex, shieldTex;
 
@@ -31,12 +32,11 @@ class Game
 		playerTex = draw.loadTexture("player.png");
 		enemyTex = playerTex;
 		shieldTex = playerTex;
-		enemies.length = 1;
-		enemies[0] = Enemy(Rect(200, 200, 32, 32), Vector2(5, 0), Vector2(0, 1), Vector2(0, 0), Vector2(5, 5));
+		enemies.insertBack(Enemy(Rect(200, 200, 32, 32), Vector2(5, 0), Vector2(0, 1), Vector2(0, 0), Vector2(5, 5), EnemyType.Patrol, 1));
 		camera = Rect(0, 0, 640, 480);
 	}
 
-	void update(Keyboard keys, Keyboard prevKeys, Mouse mouse, Mouse prevMouse)
+	@nogc void update(Keyboard keys, Keyboard prevKeys, Mouse mouse, Mouse prevMouse)
 	{
 		updatePlayer(keys, prevKeys);
 		moveEntity(player);
@@ -45,21 +45,14 @@ class Game
 			updateEnemy(enemy);
 			moveEntity(enemy);
 		}
-		for(int i = 0; i < shields.length; i++)
+		foreach(ref shield; shields)
 		{
-			auto shield = &shields[i];
 			shield.bounds.x += shield.velocity.x;
 			shield.bounds.y += shield.velocity.y;
-			if(!map.is_empty(shield.bounds))
-			{
-				shields[i] = shields[$ - 1];
-				shields.length--;
-				i--;
-			}
 		}
 	}
 
-	void render(ref Window win)
+	@nogc void render(ref Window win)
 	{
 		win.draw.clear();
 		renderTex(win, playerTex, player.bounds, player.iframes != 0 ? 128 : 255);
@@ -70,13 +63,13 @@ class Game
 		win.draw.display();
 	}
 
-	void moveEntity(Entity)(ref Entity entity)
+	@nogc void moveEntity(Entity)(ref Entity entity)
 	{
 		entity.velocity = (entity.velocity + entity.acceleration).limit(entity.maxVelocity).drag(entity.drag);
 		map.slide(entity.bounds, entity.velocity, entity.bounds, entity.velocity);
 	}
 	
-	void updatePlayer(Keyboard keys, Keyboard prevKeys) 
+	@nogc void updatePlayer(Keyboard keys, Keyboard prevKeys) 
 	{
 		player.acceleration.x = 0;
 		if(keys.isPressed!"D")
@@ -113,16 +106,14 @@ class Game
 			player.iframes--;
 	}
 
-	void doAbility(PlayerAbility ability)
+	@nogc void doAbility(PlayerAbility ability)
 	{
 		if(player.abilityCooldown > 0) return;
 		switch(ability) {
 		case PlayerAbility.Block:
-			shields.length++;
-			shields[$ - 1] = Shield(Rect(player.bounds.x + player.bounds.width / 2 - 2, 
-						player.bounds.y, 4, player.bounds.height), 
-					Vector2(10 * (player.faceLeft ? -1 : 1), 0));
-			writeln(shields);
+			shields.insertBack(Shield(Rect(player.bounds.x + player.bounds.width / 2 - 2, 
+					player.bounds.y, 4, player.bounds.height), 
+					Vector2(10 * (player.faceLeft ? -1 : 1), 0)));
 			player.abilityCooldown = 15;
 			break;
 		case PlayerAbility.Reflect:
@@ -134,13 +125,11 @@ class Game
 					player.bounds.y + player.bounds.height / 2 - 3, 96, 6);
 			if(player.faceLeft)
 				hitbox.x -= 96;
-			for(int i = 0; i < enemies.length; i++) 
+			foreach(ref enemy; enemies) 
 			{
-				if(enemies[i].bounds.overlaps(hitbox)) 
+				if(enemy.bounds.overlaps(hitbox)) 
 				{
-					enemies[i] = enemies[$ - 1];
-					enemies.length--;
-					i--;
+					enemy.health--;
 				}
 			}
 			player.abilityCooldown = 60;
@@ -157,7 +146,7 @@ class Game
 		}
 	}
 
-	void updateEnemy(ref Enemy enemy)
+	@nogc void updateEnemy(ref Enemy enemy)
 	{
 		switch(enemy.type)
 		{
@@ -182,7 +171,7 @@ class Game
 		}
 	}
 
-	void renderTex(ref Window win, Texture texture, Rect bounds, ubyte alpha)
+	@nogc void renderTex(ref Window win, Texture texture, Rect bounds, ubyte alpha)
 	{
 		bounds.x -= camera.x;
 		bounds.y -= camera.y;
@@ -193,6 +182,28 @@ class Game
 		bounds.width *= win.width / camera.width;
 		bounds.height *= win.height / camera.height;
 		win.draw.draw(texture, cast(int)bounds.x, cast(int)bounds.y, cast(int)bounds.width, cast(int)bounds.height, 0, false, false, alpha);
+	}
+
+	void clearDead()
+	{
+		for(int i = 0; i < shields.length; i++)
+		{
+			if(!map.is_empty(shields[i].bounds))
+			{
+				shields[i] = shields[$ - 1];
+				shields.removeBack();
+				i--;
+			}
+		}
+		for(int i = 0; i < enemies.length; i++)
+		{
+			if(enemies[i].health < 0)
+			{
+				enemies[i] = enemies[$ - 1];
+				enemies.removeBack();
+				i--;
+			}
+		}
 	}
 }
 

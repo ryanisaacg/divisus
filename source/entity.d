@@ -19,6 +19,7 @@ struct Enemy
 	Rect bounds;
 	Vector2 velocity, acceleration, drag, maxVelocity;
 	EnemyType type;
+	int health;
 }
 
 struct Shield
