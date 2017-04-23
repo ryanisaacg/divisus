@@ -11,7 +11,9 @@ const char[] properties = `
 	@property @nogc float centerX() { return x + width / 2; }
 	@property @nogc float centerX(float val) { return x = val - width / 2; }
 	@property @nogc float centerY() { return y + height / 2; }
-	@property @nogc float centerY(float val) { return y = val - height / 2; }`;
+	@property @nogc float centerY(float val) { return y = val - height / 2; }
+	@property @nogc Vector2 center() { return Vector2(centerX, centerY); }
+	`;
 
 struct Player
 {

@@ -207,9 +207,8 @@ class Game
 		case EnemyType.Turret:
 			if(enemy.cooldown <= 0)
 			{
-				enemyBullets.insertBack(Projectile(Rect(enemy.centerX - 2, enemy.centerY -2, 4, 4),
-						(Vector2(player.centerX, player.centerY) - Vector2(enemy.centerX, enemy.centerY))
-						.setLength(15)));
+				enemyBullets.insertBack(Projectile(Rect(enemy.centerX - 2, enemy.centerY - 2, 4, 4),
+						(player.center - enemy.center).setLength(15)));
 				enemy.cooldown = 120;
 			}
 			else
