@@ -34,7 +34,7 @@ class Game
 		shieldTex = playerTex;
 		playerBulletTex = playerTex;
 		enemyBulletTex = playerTex;
-		enemies.insertBack(Enemy(Rect(200, 200, 32, 32), Vector2(5, 0), Vector2(0, 1), Vector2(0, 0), Vector2(5, 5), EnemyType.Patrol, 1));
+		enemies.insertBack(Enemy(Rect(200, 200, 32, 32), Vector2(5, 0), Vector2(0, 1), Vector2(0, 0), Vector2(5, 5), EnemyType.Turret, 1));
 		camera = Rect(0, 0, 640, 480);
 	}
 
@@ -206,6 +206,21 @@ class Game
 			bounds.x += sgn(enemy.velocity.x) * bounds.width;
 			if(!map.supported(bounds))
 				enemy.velocity.x *= -1;
+			break;
+		case EnemyType.Turret:
+			if(enemy.cooldown <= 0)
+			{
+				enemyBullets.insertBack(Projectile(Rect(enemy.bounds.x + player.bounds.width / 2 -2,
+						player.bounds.y + player.bounds.height / 2 -2, 4, 4),
+						(Vector2(player.bounds.x + player.bounds.width / 2, player.bounds.y + player.bounds.height / 2) 
+						 - Vector2(enemy.bounds.x + enemy.bounds.width / 2, enemy.bounds.y + enemy.bounds.height / 2))
+						.setLength(15)));
+				enemy.cooldown = 120;
+			}
+			else
+			{
+				enemy.cooldown -= 1;
+			}
 			break;
 		default:
 			break;

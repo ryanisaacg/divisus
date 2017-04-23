@@ -12,14 +12,14 @@ struct Player
 
 enum PlayerAbility { Block, Reflect, Strike, Dash, Shoot, None }
 
-enum EnemyType { Patrol }
+enum EnemyType { Patrol, Turret }
 
 struct Enemy
 {
 	Rect bounds;
 	Vector2 velocity, acceleration, drag, maxVelocity;
 	EnemyType type;
-	int health;
+	int health, cooldown;
 }
 
 struct Projectile
