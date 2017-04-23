@@ -27,7 +27,7 @@ class Game
 	{
 		map = new Map;
 		player = Player(Rect(100, 100, 32, 32), Vector2(0, 0), Vector2(0, 1), Vector2(0.25, 0), Vector2(4, 20));
-		player.a = PlayerAbility.Dash;
+		player.a = PlayerAbility.Block;
 		player.b = PlayerAbility.Shoot;
 		playerTex = draw.loadTexture("player.png");
 		enemyTex = playerTex;
@@ -153,7 +153,7 @@ class Game
 		if(player.abilityCooldown > 0) return;
 		switch(ability) {
 		case PlayerAbility.Block:
-			shields.insertBack(Projectile(Rect(player.centerX - 2, player.y, 4, player.height), 
+			shields.insertBack(Projectile(Rect(player.centerX - 8, player.y, 16, player.height), 
 					Vector2(10 * (player.faceLeft ? -1 : 1), 0)));
 			player.abilityCooldown = 15;
 			break;
