@@ -49,8 +49,8 @@ class Game
 		}
 		foreach(ref shield; shields)
 		{
-			shield.bounds.x += shield.velocity.x;
-			shield.bounds.y += shield.velocity.y;
+			shield.x = shield.x + shield.velocity.x;
+			shield.y = shield.y + shield.velocity.y;
 			foreach(ref enemyBullet; enemyBullets)
 			{
 				if(shield.bounds.overlaps(enemyBullet.bounds))
@@ -62,8 +62,8 @@ class Game
 		}
 		foreach(ref playerBullet; playerBullets)
 		{
-			playerBullet.bounds.x += playerBullet.velocity.x;
-			playerBullet.bounds.y += playerBullet.velocity.y;
+			playerBullet.x = playerBullet.x + playerBullet.velocity.x;
+			playerBullet.y = playerBullet.y + playerBullet.velocity.y;
 			foreach(ref enemy; enemies)
 			{
 				if(playerBullet.bounds.overlaps(enemy.bounds))
@@ -75,8 +75,8 @@ class Game
 		}
 		foreach(ref enemyBullet; enemyBullets)
 		{
-			enemyBullet.bounds.x += enemyBullet.velocity.x;
-			enemyBullet.bounds.y += enemyBullet.velocity.y;
+			enemyBullet.x = enemyBullet.x + enemyBullet.velocity.x;
+			enemyBullet.y = enemyBullet.y + enemyBullet.velocity.y;
 			if(player.iframes <= 0 && player.bounds.overlaps(enemyBullet.bounds))
 			{
 				if(player.currentAction != PlayerAbility.Dash)
@@ -153,8 +153,7 @@ class Game
 		if(player.abilityCooldown > 0) return;
 		switch(ability) {
 		case PlayerAbility.Block:
-			shields.insertBack(Projectile(Rect(player.bounds.x + player.bounds.width / 2 - 2, 
-					player.bounds.y, 4, player.bounds.height), 
+			shields.insertBack(Projectile(Rect(player.centerX - 2, player.y, 4, player.height), 
 					Vector2(10 * (player.faceLeft ? -1 : 1), 0)));
 			player.abilityCooldown = 15;
 			break;
@@ -162,8 +161,7 @@ class Game
 			player.abilityCooldown = 60;
 			break;
 		case PlayerAbility.Strike:
-			Rect hitbox = Rect(player.bounds.x + player.bounds.width / 2, 
-					player.bounds.y + player.bounds.height / 2 - 3, 96, 6);
+			Rect hitbox = Rect(player.centerX, player.centerY - 3, 96, 6);
 			if(player.faceLeft)
 				hitbox.x -= 96;
 			foreach(ref enemy; enemies) 
@@ -182,8 +180,7 @@ class Game
 			player.abilityCooldown = 5;
 			break;
 		case PlayerAbility.Shoot:
-			playerBullets.insertBack(Projectile(Rect(player.bounds.x + player.bounds.width / 2 - 2,
-					player.bounds.y + player.bounds.height / 2 - 2, 4, 4),
+			playerBullets.insertBack(Projectile(Rect(player.centerX - 2, player.centerY - 2, 4, 4),
 					Vector2(15 * (player.faceLeft ? -1 : 1), 0)));
 			player.abilityCooldown = 15;
 			break;
@@ -210,10 +207,8 @@ class Game
 		case EnemyType.Turret:
 			if(enemy.cooldown <= 0)
 			{
-				enemyBullets.insertBack(Projectile(Rect(enemy.bounds.x + player.bounds.width / 2 -2,
-						player.bounds.y + player.bounds.height / 2 -2, 4, 4),
-						(Vector2(player.bounds.x + player.bounds.width / 2, player.bounds.y + player.bounds.height / 2) 
-						 - Vector2(enemy.bounds.x + enemy.bounds.width / 2, enemy.bounds.y + enemy.bounds.height / 2))
+				enemyBullets.insertBack(Projectile(Rect(enemy.centerX - 2, enemy.centerY -2, 4, 4),
+						(Vector2(player.centerX, player.centerY) - Vector2(enemy.centerX, enemy.centerY))
 						.setLength(15)));
 				enemy.cooldown = 120;
 			}
