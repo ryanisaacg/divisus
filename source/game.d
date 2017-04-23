@@ -34,7 +34,7 @@ class Game
 		shieldTex = playerTex;
 		playerBulletTex = playerTex;
 		enemyBulletTex = playerTex;
-		enemies.insertBack(Enemy(Rect(200, 200, 32, 32), Vector2(5, 0), Vector2(0, 1), Vector2(0, 0), Vector2(5, 5), EnemyType.Turret, 1));
+		enemies.insertBack(Enemy(Rect(200, 200, 32, 32), Vector2(5, 0), Vector2(0, 1), Vector2(0, 0), Vector2(35, 35), EnemyType.HunterKiller, 1));
 		camera = Rect(0, 0, 640, 480);
 	}
 
@@ -209,11 +209,36 @@ class Game
 			{
 				enemyBullets.insertBack(Projectile(Rect(enemy.centerX - 2, enemy.centerY - 2, 4, 4),
 						(player.center - enemy.center).setLength(15)));
-				enemy.cooldown = 120;
+				enemy.cooldown = 60;
 			}
 			else
 			{
 				enemy.cooldown -= 1;
+			}
+			break;
+		case EnemyType.HunterKiller:
+			if((enemy.center - player.center).len() <= 360)
+			{
+				if(player.x + 10 < enemy.x)
+					enemy.x = enemy.x - 3;
+				if(player.x - 10 > enemy.x)
+					enemy.x = enemy.x + 3;
+				if(player.y + player.height * 2 < enemy.y && enemy.x < player.x + player.width 
+						&& enemy.x + enemy.width > player.x && map.supported(enemy.bounds))
+					enemy.velocity.y = -15;
+				if(enemy.cooldown <= 0)
+				{
+					for(int i = -1; i <= 1; i++)
+						for(int j = -1; j <= 1; j++)
+							if(i != 0 || j != 0)
+								enemyBullets.insertBack(Projectile(Rect(enemy.centerX - 2, enemy.centerY - 2, 4, 4),
+									Vector2(i * 6, j * 6)));
+					enemy.cooldown = 120;
+				}
+				else
+				{
+					enemy.cooldown--;
+				}
 			}
 			break;
 		default:
