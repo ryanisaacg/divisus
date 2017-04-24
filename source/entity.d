@@ -20,7 +20,7 @@ struct Player
 	Rect bounds;
 	Vector2 velocity, acceleration, drag, maxVelocity;
 	bool holdingJump, faceLeft;
-	int power, iframes, abilityCooldown;
+	int power, iframes, abilityCooldown, maxPower;
 	PlayerAbility a, b;
 	PlayerAbility currentAction;
 	mixin(properties);

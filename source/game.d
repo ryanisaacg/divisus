@@ -29,6 +29,7 @@ class Game
 		player = Player(Rect(100, 100, 32, 32), Vector2(0, 0), Vector2(0, 1), Vector2(0.25, 0), Vector2(4, 20));
 		player.a = PlayerAbility.Block;
 		player.b = PlayerAbility.Reflect;
+		player.power = player.maxPower = 50;
 		playerTex = draw.loadTexture("player.png");
 		enemyTex = playerTex;
 		shieldTex = playerTex;
@@ -90,7 +91,15 @@ class Game
 
 	@nogc void render(ref Window win)
 	{
+		win.draw.setColor(Color(0, 0, 0, 255));
 		win.draw.clear();
+		renderEntities(win);
+		renderUI(win);
+		win.draw.display();
+	}
+
+	@nogc void renderEntities(ref Window win)
+	{
 		renderTex(win, playerTex, player.bounds, player.iframes != 0 ? 128 : 255);
 		foreach(ref enemy; enemies)
 			renderTex(win, enemyTex, enemy.bounds, 255);
@@ -100,7 +109,14 @@ class Game
 			renderTex(win, playerBulletTex, bullet.bounds, 255);
 		foreach(ref bullet; enemyBullets)
 			renderTex(win, enemyBulletTex, bullet.bounds, 255);
-		win.draw.display();
+	}
+
+	@nogc void renderUI(ref Window win)
+	{
+		win.draw.setColor(Color(128, 128, 128, 255));
+		win.draw.fillRect(15, 15, win.width - 15, 30);
+		win.draw.setColor(Color(0, 128, 128, 255));
+		win.draw.fillRect(20, 20, cast(int)((win.width - 20) * (player.power / cast(float)player.maxPower)), 20);
 	}
 
 	@nogc void moveEntity(Entity)(ref Entity entity)
