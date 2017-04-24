@@ -28,13 +28,13 @@ class Game
 		map = new Map;
 		player = Player(Rect(100, 100, 32, 32), Vector2(0, 0), Vector2(0, 1), Vector2(0.25, 0), Vector2(4, 20));
 		player.a = PlayerAbility.Block;
-		player.b = PlayerAbility.Shoot;
+		player.b = PlayerAbility.Reflect;
 		playerTex = draw.loadTexture("player.png");
 		enemyTex = playerTex;
 		shieldTex = playerTex;
 		playerBulletTex = playerTex;
 		enemyBulletTex = playerTex;
-		enemies.insertBack(Enemy(Rect(200, 200, 32, 32), Vector2(5, 0), Vector2(0, 1), Vector2(0, 0), Vector2(35, 35), EnemyType.Leaper, 1));
+		enemies.insertBack(Enemy(Rect(200, 200, 32, 32), Vector2(5, 0), Vector2(0, 1), Vector2(0, 0), Vector2(35, 35), EnemyType.Turret, 1));
 		camera = Rect(0, 0, 640, 480);
 	}
 
@@ -79,9 +79,11 @@ class Game
 			enemyBullet.y = enemyBullet.y + enemyBullet.velocity.y;
 			if(player.iframes <= 0 && player.bounds.overlaps(enemyBullet.bounds))
 			{
-				if(player.currentAction != PlayerAbility.Dash)
+				if(player.currentAction != PlayerAbility.Reflect && player.currentAction != PlayerAbility.Dash)
 					player.power--;
 				enemyBullet.health--;
+				if(player.currentAction == PlayerAbility.Reflect)
+					playerBullets.insertBack(Projectile(enemyBullet.bounds, -enemyBullet.velocity));
 			}
 		}
 	}
@@ -158,7 +160,7 @@ class Game
 			player.abilityCooldown = 15;
 			break;
 		case PlayerAbility.Reflect:
-			player.abilityCooldown = 60;
+			player.abilityCooldown = 120;
 			break;
 		case PlayerAbility.Strike:
 			Rect hitbox = Rect(player.centerX, player.centerY - 3, 96, 6);
