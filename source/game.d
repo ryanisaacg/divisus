@@ -34,7 +34,7 @@ class Game
 		shieldTex = playerTex;
 		playerBulletTex = playerTex;
 		enemyBulletTex = playerTex;
-		enemies.insertBack(Enemy(Rect(200, 200, 32, 32), Vector2(5, 0), Vector2(0, 1), Vector2(0, 0), Vector2(35, 35), EnemyType.HunterKiller, 1));
+		enemies.insertBack(Enemy(Rect(200, 200, 32, 32), Vector2(5, 0), Vector2(0, 1), Vector2(0, 0), Vector2(35, 35), EnemyType.Leaper, 1));
 		camera = Rect(0, 0, 640, 480);
 	}
 
@@ -220,9 +220,9 @@ class Game
 			if((enemy.center - player.center).len() <= 360)
 			{
 				if(player.x + 10 < enemy.x)
-					enemy.x = enemy.x - 3;
-				if(player.x - 10 > enemy.x)
-					enemy.x = enemy.x + 3;
+					enemy.velocity.x = -3;
+				else if(player.x - 10 > enemy.x)
+					enemy.velocity.x = 3;
 				if(player.y + player.height * 2 < enemy.y && enemy.x < player.x + player.width 
 						&& enemy.x + enemy.width > player.x && map.supported(enemy.bounds))
 					enemy.velocity.y = -15;
@@ -239,6 +239,36 @@ class Game
 				{
 					enemy.cooldown--;
 				}
+			}
+			break;
+		case EnemyType.Leaper:
+			if(enemy.velocity.y == 0)
+			{
+				if((enemy.center - player.center).len() <= 360)
+				{
+					enemy.velocity.y = -30;
+				}
+				else
+				{
+					if(player.x + 10 < enemy.x)
+						enemy.velocity.x = -3;
+					if(player.x - 10 > enemy.x)
+						enemy.velocity.x = 3;
+				}
+			} 
+			else if(enemy.velocity.y < 0)
+			{
+				if(player.x + 10 < enemy.x)
+					enemy.velocity.x = -1;
+				if(player.x - 10 > enemy.x)
+					enemy.velocity.x = 1;
+			}
+			else
+			{
+				if(player.x + 10 < enemy.x)
+					enemy.velocity.x = -5;
+				if(player.x - 10 > enemy.x)
+					enemy.velocity.x = 5;
 			}
 			break;
 		default:

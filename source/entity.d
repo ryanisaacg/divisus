@@ -28,7 +28,7 @@ struct Player
 
 enum PlayerAbility { Block, Reflect, Strike, Dash, Shoot, None }
 
-enum EnemyType { Patrol, Turret, HunterKiller }
+enum EnemyType { Patrol, Turret, HunterKiller, Leaper }
 
 struct Enemy
 {
